@@ -14,7 +14,11 @@ public class EDDoubleLinkedList<T> implements List<T> {
         private Node next;
         private Node prev;
 
-        public Node(T data) { this.data = data;};
+        public Node(T data) {
+            this.data = data;
+        }
+
+        ;
     }
 
     private Node first = null;
@@ -22,12 +26,12 @@ public class EDDoubleLinkedList<T> implements List<T> {
     private int size = 0;
 
     public EDDoubleLinkedList(Collection<T> col) {
-        for (T elem: col) {
+        for (T elem : col) {
             Node n = new Node(elem);
             if (first == null)
                 first = last = n;
             else {
-                n.prev=last;
+                n.prev = last;
                 last.next = n;
                 last = n;
             }
@@ -39,90 +43,144 @@ public class EDDoubleLinkedList<T> implements List<T> {
      * Invierte el orden de los elementos de la lista.
      */
     public void reverse() {
-        Node aux=first, fin=last;
-        int inicio=0, ultimo=size-1;
-        while (inicio<ultimo){
-            Node nuevo1=new Node(aux.data);
-            nuevo1.next=fin.next;
-            nuevo1.prev=fin.prev;
-            fin.prev.next=nuevo1;
-            if (fin==last)
-                last=nuevo1;
+        Node aux = first, fin = last;
+        int inicio = 0, ultimo = size - 1;
+        while (inicio < ultimo) {
+            Node nuevo1 = new Node(aux.data);
+            nuevo1.next = fin.next;
+            nuevo1.prev = fin.prev;
+            fin.prev.next = nuevo1;
+            if (fin == last)
+                last = nuevo1;
             else
-                fin.next.prev=nuevo1;
-            Node nuevo2=new Node(fin.data);
-            nuevo2.next=aux.next;
-            nuevo2.prev=aux.prev;
-            aux.next.prev=nuevo2;
-            if (inicio==0)
-                first=nuevo2;
+                fin.next.prev = nuevo1;
+            Node nuevo2 = new Node(fin.data);
+            nuevo2.next = aux.next;
+            nuevo2.prev = aux.prev;
+            aux.next.prev = nuevo2;
+            if (inicio == 0)
+                first = nuevo2;
             else
-                aux.prev.next=nuevo2;
-            aux=aux.next;
-            fin=fin.prev;
+                aux.prev.next = nuevo2;
+            aux = aux.next;
+            fin = fin.prev;
             inicio++;
             ultimo--;
         }
     }
 
     /**
-     *  Añade los elementos de la lista intercalándolo con la lista actual.
+     * Añade los elementos de la lista intercalándolo con la lista actual.
      *
-     *  @param lista lista con los elementos que deben ser intercalados
+     * @param lista lista con los elementos que deben ser intercalados
      */
     public void shuffle(List<T> lista) {
-        if (lista.size()!=0){
-            ListIterator<T> it= lista.listIterator();
-            Node aux= first;
-            int indice=0;
-            while (indice<size-1 && it.hasNext()){
-                Node nuevo= new Node(it.next());
-                nuevo.prev=aux;
-                nuevo.next=aux.next;
-                aux.next.prev=nuevo;
-                aux.next=nuevo;
+        if (lista.size() != 0) {
+            ListIterator<T> it = lista.listIterator();
+            Node aux = first;
+            int indice = 0;
+            while (indice < size - 1 && it.hasNext()) {
+                Node nuevo = new Node(it.next());
+                nuevo.prev = aux;
+                nuevo.next = aux.next;
+                aux.next.prev = nuevo;
+                aux.next = nuevo;
                 indice++;
-                aux=aux.next.next;
+                aux = aux.next.next;
             }
-            if(indice<size || size==0){
-                if (size==0){
-                    first=new Node(it.next());
-                    last=first;
+            if (indice < size || size == 0) {
+                if (size == 0) {
+                    first = new Node(it.next());
+                    last = first;
                 }
-                while (it.hasNext()){
-                    Node nuevo= new Node(it.next());
-                    nuevo.prev=last;
-                    last.next=nuevo;
-                    last=nuevo;
+                while (it.hasNext()) {
+                    Node nuevo = new Node(it.next());
+                    nuevo.prev = last;
+                    last.next = nuevo;
+                    last = nuevo;
                 }
             }
-            size+=lista.size();
+            size += lista.size();
         }
     }
 
     /**
      * Elimina los elementos de la lista tales que permanecerán los que se encuentren entre las en posiciones
      * firstIndex(inlcuido) y lastIndex (excluido). Los elmentos supervivientes deben manterner el orden previo.
-     *
+     * <p>
      * Es decir, si firstIndex = 3 lastIndex=8, la lista se quedará con los elementos en las posiciones 3, 4, 5, 6 y 7.
      *
      * @param firstIndex Primer elemento que permanecerá
-     * @param lastIndex Siguiente al último elemento que permanecerà
+     * @param lastIndex  Siguiente al último elemento que permanecerà
      * @return True si se ha modificado la lista, y false en caso contrario.
      * @throws IndexOutOfBoundsException si firstIndex < 0 o >= size y lastIndex <0 o > size
      */
     public boolean prune(int firstIndex, int lastIndex) throws IndexOutOfBoundsException {
-        return false;
+        if (firstIndex < 0 || firstIndex >= size || lastIndex < 0 || lastIndex > size)
+            throw new IndexOutOfBoundsException();
+        else if (lastIndex < firstIndex || lastIndex == firstIndex) {
+            clear();
+            return true;
+        } else {
+            if (firstIndex == 0 && lastIndex == size)
+                return false;
+            Node inicio = first, fin = last;
+            for (int i = 0; i < firstIndex; i++)
+                inicio = inicio.next;
+            for (int i = size; i > lastIndex; i--)
+                fin = fin.prev;
+            inicio.prev = null;
+            first = inicio;
+            fin.next = null;
+            last = fin;
+            if (lastIndex != size) {
+                int resto = size - lastIndex;
+                size -= resto;
+            }
+            size -= firstIndex;
+            return true;
+        }
     }
 
     /**
      * retainAll(c): Calcula la intersección de la lista actual con una colección c
+     *
      * @param c: colección de elementos con los que calcula la intersección
      * @return True si la lista actual ha sido modificada, false en caso contrario
      */
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;
+        Node aux = first;
+        int num = 0;
+        for (int i = 0; i < size; i++) {
+            T elem = aux.data;
+            if (!c.contains(elem)) {
+                if (aux == first) {
+                    if (aux.next != null && aux.prev != null) {
+                        first.next.prev = first.prev;
+                        first.prev.next = first.next;
+                        first = aux.next;
+                    } else {
+                        first = null;
+                    }
+                } else {
+                    if (aux.next != null && aux.prev != null) {
+                        aux.next.prev = aux.prev;
+                        aux.prev.next = aux.next;
+                    } else {
+                        last = aux;
+                    }
+                }
+            } else
+                num++;
+            aux = aux.next;
+        }
+        if (num == size)
+            return false;
+        else {
+            size = num;
+            return true;
+        }
     }
 
 
@@ -142,7 +200,9 @@ public class EDDoubleLinkedList<T> implements List<T> {
     }
 
     @Override
-    public Iterator<T> iterator() { throw new UnsupportedOperationException(); }
+    public Iterator<T> iterator() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public Object[] toArray() {
@@ -150,7 +210,7 @@ public class EDDoubleLinkedList<T> implements List<T> {
 
         Node n = first;
         int i = 0;
-        while(n != null) {
+        while (n != null) {
             v[i] = n.data;
             n = n.next;
             i++;
@@ -193,7 +253,6 @@ public class EDDoubleLinkedList<T> implements List<T> {
     public boolean removeAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
-
 
 
     @Override
