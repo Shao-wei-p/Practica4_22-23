@@ -27,7 +27,7 @@ public class EDDoubleLinkedList<T> implements List<T> {
             if (first == null)
                 first = last = n;
             else {
-                n.prev = last;
+                n.prev=last;
                 last.next = n;
                 last = n;
             }
@@ -39,7 +39,30 @@ public class EDDoubleLinkedList<T> implements List<T> {
      * Invierte el orden de los elementos de la lista.
      */
     public void reverse() {
-        
+        Node aux=first, fin=last;
+        int inicio=0, ultimo=size-1;
+        while (inicio<ultimo){
+            Node nuevo1=new Node(aux.data);
+            nuevo1.next=fin.next;
+            nuevo1.prev=fin.prev;
+            fin.prev.next=nuevo1;
+            if (fin==last)
+                last=nuevo1;
+            else
+                fin.next.prev=nuevo1;
+            Node nuevo2=new Node(fin.data);
+            nuevo2.next=aux.next;
+            nuevo2.prev=aux.prev;
+            aux.next.prev=nuevo2;
+            if (inicio==0)
+                first=nuevo2;
+            else
+                aux.prev.next=nuevo2;
+            aux=aux.next;
+            fin=fin.prev;
+            inicio++;
+            ultimo--;
+        }
     }
 
     /**
@@ -48,7 +71,33 @@ public class EDDoubleLinkedList<T> implements List<T> {
      *  @param lista lista con los elementos que deben ser intercalados
      */
     public void shuffle(List<T> lista) {
-        
+        if (lista.size()!=0){
+            ListIterator<T> it= lista.listIterator();
+            Node aux= first;
+            int indice=0;
+            while (indice<size-1 && it.hasNext()){
+                Node nuevo= new Node(it.next());
+                nuevo.prev=aux;
+                nuevo.next=aux.next;
+                aux.next.prev=nuevo;
+                aux.next=nuevo;
+                indice++;
+                aux=aux.next.next;
+            }
+            if(indice<size || size==0){
+                if (size==0){
+                    first=new Node(it.next());
+                    last=first;
+                }
+                while (it.hasNext()){
+                    Node nuevo= new Node(it.next());
+                    nuevo.prev=last;
+                    last.next=nuevo;
+                    last=nuevo;
+                }
+            }
+            size+=lista.size();
+        }
     }
 
     /**
@@ -63,7 +112,7 @@ public class EDDoubleLinkedList<T> implements List<T> {
      * @throws IndexOutOfBoundsException si firstIndex < 0 o >= size y lastIndex <0 o > size
      */
     public boolean prune(int firstIndex, int lastIndex) throws IndexOutOfBoundsException {
-        
+        return false;
     }
 
     /**
@@ -73,8 +122,7 @@ public class EDDoubleLinkedList<T> implements List<T> {
      */
     @Override
     public boolean retainAll(Collection<?> c) {
-
-      
+        return false;
     }
 
 
