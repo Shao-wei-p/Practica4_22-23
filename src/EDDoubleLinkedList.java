@@ -112,20 +112,95 @@ public class EDDoubleLinkedList<T> implements List<T> {
      * @throws IndexOutOfBoundsException si firstIndex < 0 o >= size y lastIndex <0 o > size
      */
     public boolean prune(int firstIndex, int lastIndex) throws IndexOutOfBoundsException {
-        
+        if (firstIndex < 0 || firstIndex >= size || lastIndex < 0 || lastIndex > size)
+            throw new IndexOutOfBoundsException();
+        else if (lastIndex < firstIndex || lastIndex == firstIndex) {
+            clear();
+            return true;
+        } else {
+            if (firstIndex == 0 && lastIndex == size)
+                return false;
+            Node inicio = first, fin = last;
+            for (int i = 0; i < firstIndex; i++)
+                inicio = inicio.next;
+            for (int i = size; i > lastIndex; i--)
+                fin = fin.prev;
+            inicio.prev = null;
+            first = inicio;
+            fin.next = null;
+            last = fin;
+            if (lastIndex != size) {
+                int resto = size - lastIndex;
+                size -= resto;
+            }
+            size -= firstIndex;
+            return true;
+        }
     }
 
     /**
      * retainAll(c): Calcula la intersección de la lista actual con una colección c
+     *
      * @param c: colección de elementos con los que calcula la intersección
      * @return True si la lista actual ha sido modificada, false en caso contrario
      */
     @Override
     public boolean retainAll(Collection<?> c) {
-
-      
+        Node aux = first;
+        int num = 0;
+        for (int i = 0; i < size; i++) {
+            T elem = aux.data;
+            if (!c.contains(elem)) {
+                if (aux == first) {
+                    first.next.prev = first.prev;
+                    first.prev.next = first.next;
+                    first = aux.next;
+                } else {
+                    aux.next.prev = aux.prev;
+                    aux.prev.next = aux.next;
+                }
+            } else
+                num++;
+            aux = aux.next;
+        }
+        if (num == size)
+            return false;
+        else {
+            size = num;
+            return true;
+        }
+        /* List<T> intersecciones= new ArrayList<>();
+        while (it.hasNext()){
+            Node aux=first;
+            T elem=(T)it.next();
+            for (int i=0; i<size; i++){
+                if (aux.data.equals(elem)) {
+                    intersecciones.add(elem);
+                    break;
+                }
+                aux=aux.next;
+            }
+        }
+        Iterator<T> it2= intersecciones.listIterator();
+        if (intersecciones.size()!=size){
+            if(it2.hasNext()){
+                Node aux2= new Node(it2.next());
+                first=aux2;
+                while (it2.hasNext()){
+                    Node nuevo= new Node(it2.next());
+                    aux2.next=nuevo;
+                    nuevo.prev=aux2;
+                    aux2=aux2.next;
+                }
+                last=aux2;
+            }
+            else {
+                clear();
+            }
+            return true;
+        }
+        return false; */
     }
-
 
     @Override
     public int size() {
